@@ -77,5 +77,5 @@ cdk deploy --parameters ConnectInstanceAlias=penta-prod-contact-center
 
 Need enterprise migration planning, custom CRM screen-pop engineering, or 24/7 SLA operational support?
 - **Pillar Guide**: [Amazon Connect Consulting Services](https://pentatomicsolutions.in/amazon-connect-consulting-services/)
-- **Technical Inquiries**: contact@pentatomicsolutions.in
+- **Technical Inquiries**: reachus@pentatomicsolutions.in
 - **Direct WhatsApp**: [+91 93168 17687](https://wa.me/919316817687)

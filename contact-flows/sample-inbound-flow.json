@@ -1,0 +1,59 @@
+{
+  "modules": [
+    {
+      "id": "entry-point",
+      "type": "SetLoggingBehavior",
+      "branches": [
+        { "condition": "Success", "transition": "get-caller-profile" }
+      ],
+      "parameters": [
+        { "name": "LoggingBehavior", "value": "Enable" }
+      ]
+    },
+    {
+      "id": "get-caller-profile",
+      "type": "InvokeLambdaFunction",
+      "branches": [
+        { "condition": "Success", "transition": "lex-conversational-bot" },
+        { "condition": "Error", "transition": "fallback-agent-queue" }
+      ],
+      "parameters": [
+        { "name": "FunctionArn", "value": "arn:aws:lambda:region:account:function:ConnectCrmLookupFunction" },
+        { "name": "TimeLimit", "value": "5" }
+      ]
+    },
+    {
+      "id": "lex-conversational-bot",
+      "type": "GetCustomerInput",
+      "branches": [
+        { "condition": "AccountBalance", "transition": "play-balance" },
+        { "condition": "SpeakToAgent", "transition": "route-to-queue" },
+        { "condition": "Default", "transition": "fallback-agent-queue" }
+      ],
+      "parameters": [
+        { "name": "BotName", "value": "CustomerServiceBot" },
+        { "name": "BotAlias", "value": "Live" },
+        { "name": "Text", "value": "Welcome to our customer center. How can we assist you today?" }
+      ]
+    },
+    {
+      "id": "route-to-queue",
+      "type": "TransferToQueue",
+      "branches": [
+        { "condition": "AtCapacity", "transition": "queue-full-prompt" }
+      ],
+      "parameters": [
+        { "name": "Queue", "value": "CustomerSupportQueue" }
+      ]
+    }
+  ],
+  "version": "1",
+  "type": "contactFlow",
+  "start": "entry-point",
+  "metadata": {
+    "entryPointPosition": { "x": 40, "y": 40 },
+    "snapToGrid": true,
+    "name": "Pentatomic Inbound Lex V2 Routing Flow",
+    "description": "Enterprise Amazon Connect routing flow with Lex V2 conversational IVR and Lambda CRM data lookups. Maintained by Pentatomic Solutions (https://pentatomicsolutions.in)."
+  }
+}

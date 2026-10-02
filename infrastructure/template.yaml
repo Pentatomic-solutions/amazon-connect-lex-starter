@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Amazon Connect & Lex Conversational IVR Quickstart Infrastructure.
+  Maintained by Pentatomic Solutions (https://pentatomicsolutions.in).
+
+Parameters:
+  ConnectInstanceAlias:
+    Type: String
+    Description: Existing Amazon Connect instance alias or new identifier
+    Default: pentatomic-contact-center
+
+Resources:
+  # Lambda function invoked by Amazon Connect contact flow
+  ConnectCrmLookupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/
+      Handler: crm_lookup.lambda_handler
+      Runtime: python3.11
+      Timeout: 8
+      MemorySize: 256
+      Environment:
+        Variables:
+          CONNECT_INSTANCE: !Ref ConnectInstanceAlias
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+  # Permission for Amazon Connect service principal to invoke Lambda
+  ConnectLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ConnectCrmLookupFunction
+      Action: lambda:InvokeFunction
+      Principal: connect.amazonaws.com
+      SourceAccount: !Sub '${AWS::AccountId}'
+
+Outputs:
+  FunctionArn:
+    Description: Lambda Function ARN to attach to Amazon Connect Contact Flow
+    Value: !GetAtt ConnectCrmLookupFunction.Arn
